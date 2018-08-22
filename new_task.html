@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+<div id="all_cars"></div>
+<button onclick="disp_day('1')">mon</button>
+<button onclick="disp_day('2')">tue</button>
+<button onclick="disp_day('3')">wed</button>
+<button onclick="disp_day('4')">thu</button>
+<button onclick="disp_day('5')">fri</button>
+<button onclick="disp_day('6')">sat</button>
+<button onclick="disp_day('7')">sun</button>
+<button onclick="add_new_car()" id="aa">add new car</button>
+
+<div id="add_car"></div>
+<p id="day">monday</p>
+<table >
+	<tbody id='tbl'>
+	</tbody>
+</table>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+// disp_day('monday');
+get_allcars();
+var last_ins_car=null;
+	function get_allcars()
+	{
+		$.ajax({
+        		url: 'http://127.0.0.1:2500/get_allcars',
+        		dataType: "jsonp",
+        		jsonpCallback: "_testcb",
+        		cache: false,
+        		timeout: 5000,
+        		success: function(data) {
+        			// alert(data);
+        			data=JSON.parse(data);
+
+        			var dd="<select id='ddlViewBy'>";
+        			for(var i=1;i<=data.length;i++)
+        			{
+        				// dd=dd+"<option value=\""+data[i]['name']+"\">"+data[i]['name']+"</option>";
+
+						dd=dd+"<option value=\""+data[i-1]['_id']+"\">"+data[i-1]['name']+"</option>";        					
+						// alert(data.length); 
+        			}
+        			dd=dd+"</select>";
+        			document.getElementById('all_cars').innerHTML=dd;
+        			},
+        			error: function(jqXHR, textStatus, errorThrown) {
+            			alert('error ' + textStatus + " " + errorThrown);
+        		}
+    		});
+	}
+
+	function disp_day(day,car)
+	{
+		// alert(day);
+		if(car == null)
+		{
+			var e = document.getElementById("ddlViewBy");
+			var car = e.options[e.selectedIndex].value;
+		}
+
+		document.getElementById('day').innerHTML=day;
+	// alert('http://127.0.0.1:2500/select/'+day+'/'+car);
+		$.ajax({
+        		url: 'http://127.0.0.1:2500/select/'+day+'/'+car,
+        		dataType: "jsonp",
+        		jsonpCallback: "_testcb",
+        		cache: false,
+        		timeout: 5000,
+        		success: function(data) {
+        			       set_disp_day_data(data);
+        			},
+        			error: function(jqXHR, textStatus, errorThrown) {	alert('error disp day' + textStatus + " " + errorThrown);	}
+    		});
+	}
+
+	function set_disp_day_data(data)
+	{
+		data=JSON.parse(data);
+		if(data[0]['car_data'][0]['_id'] != null)
+		{
+	      	last_ins_car=data[0]['car_data'][0]['_id'];			
+		}
+ 
+        			
+        var temp="<tr><td>car</td><td>start time</td><td>end time</td><td>mul</td><td>day</td><td>update</td><td>delete</td></tr>";
+		var temp1="";
+        			
+        for(var i=0;i<data.length;i++)
+        {
+         temp1=temp1+"<tr id="+data[i]['_id']+"><td>"+data[0]['car_data'][0]['name']+"</td>"+"<td>"+data[i]['start_time']+"</td>"+
+        "<td>"+data[i]['end_time']+"</td>"+"<td>"+data[i]['mul']+"</td>"+"<td>"+data[0]['day_data'][0]['name']+"</td>"+
+        "<td><button onclick=\"update('"+data[i]['_id']+"')\">update</button></td>"+"<td><button onclick=\"deleted('"+data[i]['_id']+"')\">delete</button></td>"+"</tr>";	
+    	}
+    document.getElementById('tbl').innerHTML=temp+temp1;     
+	}
+
+
+	function add_new_car()
+	{
+		var temp="<select id='ins_day'><option value='1'>monday</option><option value='2'>tuesday</option><option value='3'>wednesday</option><option value='4'>thursday</option><option value='5'>friday</option><option value='6'>saturday</option><option value='7'>sunday</option></select>";
+
+		var temp1="<table id='ins_tbl'><tr><td>00:00-01:00</td><td><input type='text' name='00:00-01:00'></td></tr>"+
+							"<tr><td>01:00-02:00</td><td><input type='text' name='01:00-02:00'></tr><tr>"+
+							"<td>02:00-03:00</td><td><input type='text' name='02:00-03:00'></tr><tr>"+
+							"<td>03:00-04:00</td><td><input type='text' name='03:00-04:00'></tr><tr>"+
+              				"<td>04:00-05:00</td><td><input type='text' name='04:00-05:00'></tr><tr>"+
+              				"<td>05:00-06:00</td><td><input type='text' name='05:00-06:00'></tr><tr>"+
+        		      		"<td>06:00-07:00</td><td><input type='text'	name='06:00-07:00'></tr><tr>"+
+        		      		"<td>07:00-08:00</td><td><input type='text' name='07:00-08:00'></tr><tr>"+
+        		      		"<td>08:00-09:00</td><td><input type='text' name='08:00-09:00'></tr><tr>"+
+        		      		"<td>09:00-10:00</td><td><input type='text' name='09:00-10:00'></tr><tr>"+
+        		      		"<td>10:00-11:00</td><td><input type='text' name='10:00-11:00'></tr><tr>"+
+        		      		"<td>11:00-12:00</td><td><input type='text' name='11:00-12:00'></tr><tr>"+
+        		      		"<td>12:00-13:00</td><td><input type='text' name='12:00-13:00'></tr><tr>"+
+        		      		"<td>13:00-14:00</td><td><input type='text' name='13:00-14:00'></tr><tr>"+
+        		      		"<td>14:00-15:00</td><td><input type='text' name='14:00-15:00'></tr><tr>"+
+        		      		"<td>15:00-16:00</td><td><input type='text' name='15:00-16:00'></tr><tr>"+
+        		      		"<td>16:00-17:00</td><td><input type='text' name='16:00-17:00'></tr><tr>"+
+        		      		"<td>17:00-18:00</td><td><input type='text' name='17:00-18:00'></tr><tr>"+
+              				"<td>18:00-19:00</td><td><input type='text' name='18:00-19:00'></tr><tr>"+
+              				"<td>19:00-20:00</td><td><input type='text' name='19:00-20:00'></tr><tr>"+
+              				"<td>20:00-21:00</td><td><input type='text' name='20:00-21:00'></tr><tr>"+
+              				"<td>21:00-22:00</td><td><input type='text' name='21:00-22:00'></tr><tr>"+
+              				"<td>22:00-23:00</td><td><input type='text' name='22:00-23:00'></tr><tr>"+
+              				"<td>23:00-24:00</td><td><input type='text' name='23:00-24:00'></tr>";
+              				
+		 document.getElementById('add_car').innerHTML="name <input type='text' id='cname'><br>"+temp+temp1+"<button id='btn_add' onclick='insert_car()'>insert</button>";
+	}
+
+	function insert_car()
+	{
+		var e = document.getElementById("ins_day");
+		var strUser = e.options[e.selectedIndex].value;
+		// alert(strUser);
+		var newurlstr="";
+  		var n=document.getElementById("ins_tbl").childNodes[0];
+  		var n1=document.getElementById("ins_tbl").childNodes[0].childNodes;
+		var temp_str=[];
+
+  		for(var i=0;i<24;i++)
+  		{
+  			var t=n1[i].childNodes[0].nextSibling.childNodes[0].value;
+
+  			if(t!="")
+  			{
+  				var tempjson={};
+  				tempjson['start_time']=i;
+  				tempjson['end_time']=i+1;
+  				tempjson['mul']=n1[i].childNodes[0].nextSibling.childNodes[0].value;
+  				temp_str.push(tempjson)
+  			}
+  			
+  		}
+  		// alert('http://127.0.0.1:2500/insert/'+document.getElementById('cname').value+'/'+strUser+'/'+JSON.stringify(temp_str));
+
+		$.ajax({
+        		url: 'http://127.0.0.1:2500/insert/'+document.getElementById('cname').value+'/'+strUser+'/'+JSON.stringify(temp_str),
+        		dataType: "jsonp",
+        		jsonpCallback: "_testcb",
+        		cache: false,
+        		timeout: 5000,
+        		success: function(data) {
+        			var tempdata=JSON.parse(data);
+        			if(tempdata['message']=='car is already added!')
+        				{ 
+        					alert('car is already added..!!');
+        				}
+        			else
+        			{
+        				// alert(data)
+        				document.getElementById("day").innerHTML=strUser;
+        				document.getElementById("add_car").innerHTML="";
+        				set_disp_day_data(data);
+        				get_allcars();        				
+        			}
+        		},
+        		error: function(jqXHR, textStatus, errorThrown) {	alert('error insert car ' + textStatus	 + " " + errorThrown);	}
+    		});
+  }
+
+  function update(id)
+  {
+  		var n=document.getElementById(id).childNodes;
+  		var urlstr="update";
+
+		urlstr=urlstr+"/"+n[3].innerHTML;
+  		n[3].innerHTML="<input type='text' value='"+n[3].innerHTML+"'>";
+  		n[5].innerHTML="<button onclick=\"save('"+id+"')\">save</button>";
+  }
+
+  function save(id)
+  {
+  	// alert(id);
+  	var n=document.getElementById(id).childNodes;
+  	var temp=[];
+  	var day=document.getElementById('day').innerHTML;
+  	// alert('http://127.0.0.1:2500/update/'+id+"/"+n[3].lastChild.value);
+  
+  	$.ajax({
+        url: 'http://127.0.0.1:2500/update/'+id+"/"+n[3].lastChild.value,
+        dataType: "jsonp",
+        jsonpCallback: "_testcb",
+        cache: false,
+        timeout: 5000,
+        success: function(data) { disp_day(day,last_ins_car); },
+        error: function(jqXHR, textStatus, errorThrown) {	alert('error ' + textStatus + " " + errorThrown);	}
+   	 	});
+	}
+
+
+    function deleted(id)
+    {
+    	$.ajax({
+        url: 'http://127.0.0.1:2500/delete/'+id,
+        dataType: "jsonp",
+        jsonpCallback: "_testcb",
+        cache: false,
+        timeout: 5000,
+        success: function(data) {	disp_day(document.getElementById('day').innerHTML,last_ins_car);	},
+        error: function(jqXHR, textStatus, errorThrown) { alert('error ' + textStatus + " " + errorThrown);	}
+    	});
+    }
+</script>
+</html>
